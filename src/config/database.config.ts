@@ -21,11 +21,11 @@ export const getDatabaseConfig = (
 
   if (databaseUrl) {
     // Connection-string mode — used on Render, Neon, Supabase, etc.
-    // ssl: true is required by most managed Postgres providers.
+    // Render uses self-signed certs, so we need rejectUnauthorized: false
     return {
       ...baseConfig,
       url: databaseUrl,
-      ssl: !isDevelopment,
+      ssl: isDevelopment ? false : { rejectUnauthorized: false },
     };
   }
 

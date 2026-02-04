@@ -32,7 +32,7 @@ import { FxRateController } from './fx-rate.controller';
           socket: {
             host: redisConfig.host,
             port: redisConfig.port,
-            tls: redisConfig.tls !== undefined,
+            tls: redisConfig.tls,
           },
           password: redisConfig.password || undefined,
         });
