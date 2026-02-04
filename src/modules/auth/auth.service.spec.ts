@@ -12,6 +12,7 @@ import { AuthService } from './auth.service';
 import { UserRepository } from './repositories/user.repository';
 import { OtpRepository } from './repositories/otp.repository';
 import { EmailService } from '../email/email.service';
+import { DirectEmailService } from '../email/direct-email.service';
 
 jest.mock('bcrypt');
 
@@ -64,6 +65,14 @@ describe('AuthService', () => {
           },
         },
         {
+          provide: DirectEmailService,
+          useValue: {
+            sendOtpEmail: jest.fn(),
+            sendWelcomeEmail: jest.fn(),
+            sendTransactionEmail: jest.fn(),
+          },
+        },
+        {
           provide: JwtService,
           useValue: {
             sign: jest.fn().mockReturnValue('mock-token'),
@@ -75,6 +84,7 @@ describe('AuthService', () => {
           useValue: {
             get: jest.fn((key) => {
               const map = {
+                'node_env': 'development',
                 'jwt.secret': 'test-secret',
                 'jwt.expiresIn': '1h',
                 'jwt.refreshSecret': 'test-refresh-secret',
