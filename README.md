@@ -510,7 +510,7 @@ This project is licensed under the MIT License.
 
 ## 👨‍💻 Author
 
-**William Obiesi**
+**Obi William**
 - GitHub: [@William9701](https://github.com/William9701)
 - Email: williamobi818@gmail.com
 
