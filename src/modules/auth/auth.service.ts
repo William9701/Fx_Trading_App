@@ -12,6 +12,7 @@ import * as bcrypt from 'bcrypt';
 import { UserRepository } from './repositories/user.repository';
 import { OtpRepository } from './repositories/otp.repository';
 import { EmailService } from '../email/email.service';
+import { DirectEmailService } from '../email/direct-email.service';
 import { User } from './entities/user.entity';
 import { RegisterDto, VerifyOtpDto, LoginDto, ResendOtpDto } from './dto';
 import { JwtPayload } from './strategies/jwt.strategy';
@@ -19,15 +20,19 @@ import { JwtPayload } from './strategies/jwt.strategy';
 @Injectable()
 export class AuthService {
   private readonly logger = new Logger(AuthService.name);
+  private readonly isProduction: boolean;
 
   constructor(
     private userRepository: UserRepository,
     private otpRepository: OtpRepository,
     private emailService: EmailService,
+    private directEmailService: DirectEmailService,
     private jwtService: JwtService,
     private configService: ConfigService,
     private eventEmitter: EventEmitter2,
-  ) {}
+  ) {
+    this.isProduction = this.configService.get<string>('node_env') === 'production';
+  }
 
   async register(dto: RegisterDto): Promise<{ message: string }> {
     const existing = await this.userRepository.findByEmail(dto.email);
@@ -196,7 +201,13 @@ export class AuthService {
       expiresAt,
     });
 
-    await this.emailService.sendOtpEmail(email, code);
+    // Use direct email service in production (no Redis/BullMQ)
+    // Use queued email service in development (with Redis)
+    if (this.isProduction) {
+      await this.directEmailService.sendOtpEmail(email, code);
+    } else {
+      await this.emailService.sendOtpEmail(email, code);
+    }
   }
 
   private generateOtpCode(): string {

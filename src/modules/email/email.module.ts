@@ -3,20 +3,26 @@ import { BullModule } from '@nestjs/bull';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { EmailService } from './email.service';
 import { EmailProcessor } from './email.processor';
+import { DirectEmailService } from './direct-email.service';
 
 /**
- * Parse a redis:// or rediss:// URL into the ioredis options object that
- * BullMQ actually understands.  Render's free-tier keyvalue service returns
- * a rediss:// URL — ioredis needs explicit { tls: {} } for that to work;
- * a bare { url } key is silently ignored by BullMQ's redis option.
+ * Parse a redis:// or rediss:// URL into the ioredis options object.
+ *
+ * - new URL() leaves the password percent-encoded; we must decodeURIComponent
+ *   it so ioredis sends the raw password in AUTH.
+ * - Render's free-tier keyvalue returns a rediss:// URL; ioredis requires an
+ *   explicit tls:{} option to enable TLS — it does NOT infer it from the scheme.
+ * - maxRetriesPerRequest: null prevents ioredis from throwing
+ *   "Max retries per request limit exceeded" on slow/cold connections.
  */
 function parseRedisUrl(url: string) {
   const parsed = new URL(url);
   return {
     host: parsed.hostname,
     port: parsed.port ? parseInt(parsed.port, 10) : 6379,
-    password: parsed.password || undefined,
+    password: parsed.password ? decodeURIComponent(parsed.password) : undefined,
     tls: parsed.protocol === 'rediss:' ? {} : undefined,
+    maxRetriesPerRequest: null,
   };
 }
 
@@ -28,8 +34,6 @@ function parseRedisUrl(url: string) {
         const redisUrl = process.env.REDIS_URL;
 
         if (redisUrl) {
-          // Spread the parsed URL into ioredis-compatible options.
-          // This correctly sets tls:{} when the scheme is rediss://.
           return { redis: parseRedisUrl(redisUrl) };
         }
 
@@ -45,6 +49,7 @@ function parseRedisUrl(url: string) {
             host: redisConfig.host,
             port: redisConfig.port,
             password: redisConfig.password,
+            maxRetriesPerRequest: null,
           },
         };
       },
@@ -54,7 +59,8 @@ function parseRedisUrl(url: string) {
       name: 'email',
     }),
   ],
-  providers: [EmailService, EmailProcessor],
-  exports: [EmailService],
+  providers: [EmailService, EmailProcessor, DirectEmailService],
+  exports: [EmailService, DirectEmailService],
 })
 export class EmailModule {}
+
