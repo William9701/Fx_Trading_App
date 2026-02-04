@@ -25,7 +25,7 @@ services:
     runtime: docker
     healthCheckPath: /api/v1/health
 
-    env:
+    envVars:
       # ── Database & Redis (cross-service references) ──────────────────────
       - key: DATABASE_URL
         fromDatabase:
