@@ -1,19 +1,16 @@
 # Render Blueprint – FX Trading App
-# Deploy with: https://render.com/deploy/...
-# Docs: https://docs.render.com/blueprints
+# Docs: https://render.com/docs/infrastructure-as-code
 
 databases:
   - name: fx-trading-postgres
     plan: free
     region: oregon
-    # Render auto-creates the database and exposes DATABASE_URL
-    # as an env var on every service that references it below.
 
 services:
   # ---------------------------------------------------------------------------
-  # Redis (managed) – used by BullMQ (email queue) and cache-manager (FX rates)
+  # Key Value (Redis) – used by BullMQ (email queue) and cache-manager (FX rates)
   # ---------------------------------------------------------------------------
-  - type: redis
+  - type: keyvalue
     name: fx-trading-redis
     plan: free
     region: oregon
@@ -25,30 +22,21 @@ services:
     name: fx-trading-app
     plan: free
     region: oregon
-    runtime: docker                 # use the Dockerfile already in the repo
+    runtime: docker
     healthCheckPath: /api/v1/health
 
-    # Pull DATABASE_URL from the Postgres database defined above.
-    # Pull REDIS_URL from the Redis service defined above.
-    databases:
-      - name: fx-trading-postgres
-        property: connectionUrl
-        envVarName: DATABASE_URL
+    env:
+      # ── Database & Redis (cross-service references) ──────────────────────
+      - key: DATABASE_URL
+        fromDatabase:
+          name: fx-trading-postgres
+          property: connectionString
 
-    envs:
-      # ── auto-wired by Render ──────────────────────────────────────────────
-      - key: PORT
-        scope: deploy
-        # Render sets PORT automatically; declared here for clarity.
-
-      # ── Redis URL ─────────────────────────────────────────────────────────
-      # Render Redis exposes REDIS_URL on the same blueprint automatically,
-      # but we wire it explicitly to be safe.
       - key: REDIS_URL
         fromService:
           name: fx-trading-redis
-          type: redis
-          property: connectionUrl
+          type: keyvalue
+          property: connectionString
 
       # ── Runtime ───────────────────────────────────────────────────────────
       - key: NODE_ENV
@@ -57,19 +45,19 @@ services:
       - key: API_PREFIX
         value: api/v1
 
-      # ── JWT (REPLACE with strong random values before deploy) ────────────
+      # ── JWT ───────────────────────────────────────────────────────────────
+      # Set these to strong random values in the Render Dashboard before deploy.
       - key: JWT_SECRET
-        value: CHANGE_ME_BEFORE_DEPLOY
+        sync: false
       - key: JWT_EXPIRATION
         value: 1h
       - key: JWT_REFRESH_SECRET
-        value: CHANGE_ME_BEFORE_DEPLOY_REFRESH
+        sync: false
       - key: JWT_REFRESH_EXPIRATION
         value: 7d
 
       # ── SMTP / Email ──────────────────────────────────────────────────────
-      # Fill these with your Gmail credentials (use an App Password, not the
-      # account password, because Gmail requires it for SMTP with 2FA).
+      # Use a Gmail App Password (not your account password) when 2FA is on.
       - key: SMTP_HOST
         value: smtp.gmail.com
       - key: SMTP_PORT
@@ -77,9 +65,9 @@ services:
       - key: SMTP_SECURE
         value: "false"
       - key: SMTP_USER
-        value: CHANGE_ME
+        sync: false
       - key: SMTP_PASSWORD
-        value: CHANGE_ME
+        sync: false
       - key: EMAIL_FROM
         value: "FX Trading <noreply@fxtrading.com>"
 
