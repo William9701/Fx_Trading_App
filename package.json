@@ -1,0 +1,109 @@
+{
+  "name": "fx_trading_app",
+  "version": "1.0.0",
+  "description": "FX Trading Application Backend",
+  "main": "dist/main.js",
+  "scripts": {
+    "build": "nest build",
+    "start": "node dist/main",
+    "start:dev": "nest start --watch",
+    "start:debug": "nest start --debug --watch",
+    "start:prod": "node dist/main",
+    "lint": "eslint --ext .ts --fix .",
+    "format": "prettier --write \"src/**/*.ts\"",
+    "format:check": "prettier --check \"src/**/*.ts\"",
+    "test": "jest --coverage",
+    "test:watch": "jest --watch",
+    "test:e2e": "jest --config jest-e2e.config.js",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:build": "docker-compose build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/William9701/Fx_Trading_App.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/William9701/Fx_Trading_App/issues"
+  },
+  "homepage": "https://github.com/William9701/Fx_Trading_App#readme",
+  "jest": {
+    "moduleFileExtensions": [
+      "js",
+      "json",
+      "ts"
+    ],
+    "rootDir": "src",
+    "testRegex": ".spec.ts$",
+    "transform": {
+      "^.+\\.ts$": "ts-jest"
+    },
+    "testEnvironment": "node",
+    "moduleNameMapper": {
+      "^@common/(.*)$": "<rootDir>/common/$1",
+      "^@modules/(.*)$": "<rootDir>/modules/$1",
+      "^@config/(.*)$": "<rootDir>/config/$1"
+    },
+    "transformIgnorePatterns": [
+      "node_modules/(?!(uuid)/)"
+    ],
+    "setupFilesAfterEnv": ["<rootDir>/test-setup.ts"]
+  },
+  "dependencies": {
+    "@nestjs/axios": "^4.0.1",
+    "@nestjs/bull": "^11.0.4",
+    "@nestjs/cache-manager": "^3.1.0",
+    "@nestjs/common": "^11.1.13",
+    "@nestjs/config": "^4.0.2",
+    "@nestjs/core": "^11.1.13",
+    "@nestjs/event-emitter": "^3.0.1",
+    "@nestjs/jwt": "^11.0.2",
+    "@nestjs/passport": "^11.0.5",
+    "@nestjs/platform-express": "^11.1.13",
+    "@nestjs/swagger": "^11.2.5",
+    "@nestjs/typeorm": "^11.0.0",
+    "axios": "^1.13.4",
+    "bcrypt": "^6.0.0",
+    "bullmq": "^5.67.2",
+    "cache-manager": "^7.2.8",
+    "cache-manager-ioredis-yet": "^2.1.2",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.14.3",
+    "ioredis": "^5.9.2",
+    "nodemailer": "^7.0.13",
+    "passport": "^0.7.0",
+    "passport-jwt": "^4.0.1",
+    "pg": "^8.18.0",
+    "reflect-metadata": "^0.2.2",
+    "rxjs": "^7.8.2",
+    "typeorm": "^0.3.28",
+    "uuid": "^13.0.0"
+  },
+  "devDependencies": {
+    "@nestjs/cli": "^11.0.16",
+    "@nestjs/schematics": "^11.0.9",
+    "@nestjs/testing": "^11.1.13",
+    "@types/bcrypt": "^6.0.0",
+    "@types/express": "^5.0.6",
+    "@types/jest": "^30.0.0",
+    "@types/node": "^25.2.0",
+    "@types/nodemailer": "^7.0.9",
+    "@types/passport-jwt": "^4.0.1",
+    "@types/supertest": "^6.0.3",
+    "@typescript-eslint/eslint-plugin": "^8.54.0",
+    "@typescript-eslint/parser": "^8.54.0",
+    "eslint": "^9.39.2",
+    "jest": "^30.2.0",
+    "prettier": "^3.8.1",
+    "supertest": "^7.2.2",
+    "ts-jest": "^29.4.6",
+    "ts-loader": "^9.5.4",
+    "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
+    "typescript": "^5.9.3"
+  }
+}

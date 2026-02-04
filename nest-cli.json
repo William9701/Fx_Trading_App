@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json.schemastore.org/nest-cli",
+  "collection": "@nestjs/schematics",
+  "sourceRoot": "src",
+  "compilerOptions": {
+    "deleteOutDir": true,
+    "tsConfigPath": "tsconfig.json",
+    "plugins": [
+      {
+        "name": "@nestjs/swagger",
+        "options": {
+          "typeFileNameSuffix": [".dto.ts", ".entity.ts"],
+          "controllerNamePrefix": "",
+          "controllerNameSuffix": "Controller"
+        }
+      }
+    ]
+  }
+}

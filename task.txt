@@ -1,0 +1,129 @@
+Backend Engineering Assessment – FX
+Trading App
+Context
+You’re tasked with building the backend for an FX Trading App where users can trade
+currencies, including Naira (NGN) and other international currencies. Users should be able to:
+● Register and verify their email.
+● Fund their wallet and perform transfers.
+● Trade Naira (NGN) against other currencies (USD, EUR, GBP, etc.) and vice versa.
+
+Your system must fetch real-time FX rates, manage wallets, and allow secure currency
+conversion and trading.
+
+Tech Stack
+● Backend Framework: NestJS
+● ORM: TypeORM
+● Database: PostgreSQL 
+● Contanization: Docker
+● Background task for the email
+● Render for the live 
+● You may use any mail provider (like Gmail SMTP) for sending emails.
+
+Functional Requirements
+1. User Registration & Email Verification
+○ Users can register with an email and receive an OTP for verification.
+○ Only verified users can access trading features.
+
+2. User Wallet
+○ Each user has a wallet with an initial balance.
+○ The wallet should support multiple currencies (e.g., NGN, USD, EUR).
+○ Users can fund their wallets, starting with Naira (NGN), and hold balances in
+various currencies.
+3. FX Rate Integration
+○ Fetch real-time FX rates from a third-party API (e.g.,
+https://www.exchangerate-api.com or any reliable FX API).
+○ Store these rates temporarily in cache or in-memory for performance.
+4. Currency Conversion & Trading
+○ Users can convert or trade:
+■ Naira → Other Currencies
+■ Other Currencies → Naira
+○ Use real-time FX rates for conversions.
+○ Ensure accurate balance updates and rate usage.
+5. Example Use Cases
+○ Convert 1000 NGN to USD.
+○ Convert 50 EUR to NGN.
+6. Transaction History
+○ Maintain a transaction history for all actions: funding, conversion, trades.
+○ Include details such as amount, rate used, transaction type, timestamp, and
+status.
+
+Constraints & Guidelines
+● You may use either MySQL or PostgreSQL.
+● Think critically about how to model multi-currency wallet balances.
+● Prevent double-spending and handle insufficient balance scenarios carefully.
+● Validate all inputs and ensure data consistency and atomic operations.
+● Handle external API failures gracefully (e.g., rate fallback, retries, error reporting).
+● Design your solution to be scalable and easy to extend to support additional currencies
+or trading pairs in the future.
+
+Deliverables
+1. A GitHub repository containing:
+○ Complete implementation of the backend system.
+○ A README.md that includes:
+■ Setup instructions
+■ Key assumptions
+■ API documentation (Swagger)
+■ Summary of architectural decisions
+○  Unit or integration tests for critical logic.
+2. 
+○ Flow diagrams or architectural charts to illustrate trading logic, wallet
+management, or currency exchange handling.
+
+Evaluation Criteria
+Area What We Look For
+System Design Clean architecture, modularity, scalability, and clarity in modeling wallet
+
+logic
+
+Security Attention to race conditions, validation, transaction atomicity, and safe
+
+APIs
+
+Code Quality Clean, consistent code following NestJS best practices
+Problem
+Solving
+
+Creative and thoughtful handling of edge cases and design constraints
+
+Best Practices Usage of patterns (e.g., CQRS, services, repositories), modular structure
+Clarity Clear README, well-documented assumptions, and API explanations
+Testability (Optional) Tests covering wallet and trading logic
+
+Bonus (Optional)
+● Role-based access: e.g., Admin vs. regular users
+● Caching: Use Redis or similar for storing FX rates temporarily
+● Transaction verification: Handle duplicates, retries, and ensure idempotency
+● Analytics: Track and log trades, FX trends, and user activity
+
+Key API Endpoints
+Endpoint Description
+POST
+/auth/register
+
+Register a user and trigger OTP email
+
+POST /auth/verify Verify OTP and activate account
+GET /wallet Get user wallet balances by currency
+
+POST /wallet/fund Fund wallet in NGN or other currencies
+POST
+/wallet/convert
+
+Convert between currencies using real-time FX rates
+
+POST
+/wallet/trade
+
+Trade Naira with other currencies and vice versa
+
+GET /fx/rates Retrieve current FX rates for supported currency
+
+pairs
+
+GET /transactions View transaction history
+
+Final Notes
+● Consider how you would scale this if you had millions of users.
+● Document all assumptions—especially around FX rates and wallet design.
+● While testing is optional, we strongly encourage tests for wallet balance, currency
+conversion, and transaction logic.

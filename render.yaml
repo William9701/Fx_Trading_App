@@ -1,0 +1,100 @@
+# Render Blueprint – FX Trading App
+# Deploy with: https://render.com/deploy/...
+# Docs: https://docs.render.com/blueprints
+
+databases:
+  - name: fx-trading-postgres
+    plan: free
+    region: oregon
+    # Render auto-creates the database and exposes DATABASE_URL
+    # as an env var on every service that references it below.
+
+services:
+  # ---------------------------------------------------------------------------
+  # Redis (managed) – used by BullMQ (email queue) and cache-manager (FX rates)
+  # ---------------------------------------------------------------------------
+  - type: redis
+    name: fx-trading-redis
+    plan: free
+    region: oregon
+
+  # ---------------------------------------------------------------------------
+  # Web Service – the NestJS application
+  # ---------------------------------------------------------------------------
+  - type: web
+    name: fx-trading-app
+    plan: free
+    region: oregon
+    runtime: docker                 # use the Dockerfile already in the repo
+    healthCheckPath: /api/v1/health
+
+    # Pull DATABASE_URL from the Postgres database defined above.
+    # Pull REDIS_URL from the Redis service defined above.
+    databases:
+      - name: fx-trading-postgres
+        property: connectionUrl
+        envVarName: DATABASE_URL
+
+    envs:
+      # ── auto-wired by Render ──────────────────────────────────────────────
+      - key: PORT
+        scope: deploy
+        # Render sets PORT automatically; declared here for clarity.
+
+      # ── Redis URL ─────────────────────────────────────────────────────────
+      # Render Redis exposes REDIS_URL on the same blueprint automatically,
+      # but we wire it explicitly to be safe.
+      - key: REDIS_URL
+        fromService:
+          name: fx-trading-redis
+          type: redis
+          property: connectionUrl
+
+      # ── Runtime ───────────────────────────────────────────────────────────
+      - key: NODE_ENV
+        value: production
+
+      - key: API_PREFIX
+        value: api/v1
+
+      # ── JWT (REPLACE with strong random values before deploy) ────────────
+      - key: JWT_SECRET
+        value: CHANGE_ME_BEFORE_DEPLOY
+      - key: JWT_EXPIRATION
+        value: 1h
+      - key: JWT_REFRESH_SECRET
+        value: CHANGE_ME_BEFORE_DEPLOY_REFRESH
+      - key: JWT_REFRESH_EXPIRATION
+        value: 7d
+
+      # ── SMTP / Email ──────────────────────────────────────────────────────
+      # Fill these with your Gmail credentials (use an App Password, not the
+      # account password, because Gmail requires it for SMTP with 2FA).
+      - key: SMTP_HOST
+        value: smtp.gmail.com
+      - key: SMTP_PORT
+        value: "587"
+      - key: SMTP_SECURE
+        value: "false"
+      - key: SMTP_USER
+        value: CHANGE_ME
+      - key: SMTP_PASSWORD
+        value: CHANGE_ME
+      - key: EMAIL_FROM
+        value: "FX Trading <noreply@fxtrading.com>"
+
+      # ── OTP ───────────────────────────────────────────────────────────────
+      - key: OTP_EXPIRATION_MINUTES
+        value: "10"
+
+      # ── FX Rate API ───────────────────────────────────────────────────────
+      - key: FX_RATE_API_URL
+        value: https://api.exchangerate-api.com/v4/latest
+      - key: FX_RATE_CACHE_TTL
+        value: "300"
+
+      # ── Wallet ────────────────────────────────────────────────────────────
+      - key: INITIAL_WALLET_BALANCE
+        value: "100"
+      - key: BASE_CURRENCY
+        value: NGN
