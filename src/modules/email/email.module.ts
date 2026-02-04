@@ -4,17 +4,33 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { EmailService } from './email.service';
 import { EmailProcessor } from './email.processor';
 
+/**
+ * Parse a redis:// or rediss:// URL into the ioredis options object that
+ * BullMQ actually understands.  Render's free-tier keyvalue service returns
+ * a rediss:// URL — ioredis needs explicit { tls: {} } for that to work;
+ * a bare { url } key is silently ignored by BullMQ's redis option.
+ */
+function parseRedisUrl(url: string) {
+  const parsed = new URL(url);
+  return {
+    host: parsed.hostname,
+    port: parsed.port ? parseInt(parsed.port, 10) : 6379,
+    password: parsed.password || undefined,
+    tls: parsed.protocol === 'rediss:' ? {} : undefined,
+  };
+}
+
 @Module({
   imports: [
     BullModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => {
-        // REDIS_URL is set by Render's fromService reference (redis://red-xxx:6379).
-        // ioredis accepts a connection URL directly — no need to parse host/port manually.
         const redisUrl = process.env.REDIS_URL;
 
         if (redisUrl) {
-          return { redis: { url: redisUrl } };
+          // Spread the parsed URL into ioredis-compatible options.
+          // This correctly sets tls:{} when the scheme is rediss://.
+          return { redis: parseRedisUrl(redisUrl) };
         }
 
         // Fallback for local Docker where REDIS_URL is not set.

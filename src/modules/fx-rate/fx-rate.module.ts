@@ -19,15 +19,23 @@ import { FxRateController } from './fx-rate.controller';
       imports: [ConfigModule],
       isGlobal: true,
       useFactory: async (configService: ConfigService) => {
-        // REDIS_URL is set by Render's fromService (redis://red-xxx:6379).
-        // cache-manager-ioredis-yet accepts a url option directly.
         const redisUrl = process.env.REDIS_URL;
 
         let store;
         if (redisUrl) {
-          store = await redisStore({ url: redisUrl });
+          // Parse the URL into explicit ioredis options.
+          // cache-manager-ioredis-yet does NOT support a bare { url } key —
+          // it must receive host/port/password/tls that ioredis understands.
+          // Render's rediss:// URL requires tls:{} to be set explicitly.
+          const parsed = new URL(redisUrl);
+          store = await redisStore({
+            host: parsed.hostname,
+            port: parsed.port ? parseInt(parsed.port, 10) : 6379,
+            password: parsed.password || undefined,
+            tls: parsed.protocol === 'rediss:' ? {} : undefined,
+          });
         } else {
-          // Fallback for local Docker.
+          // Fallback for local Docker — top-level ioredis options.
           const redisConfig = configService.get<{
             host: string;
             port: number;
@@ -35,10 +43,8 @@ import { FxRateController } from './fx-rate.controller';
           }>('redis');
 
           store = await redisStore({
-            socket: {
-              host: redisConfig.host,
-              port: redisConfig.port,
-            },
+            host: redisConfig.host,
+            port: redisConfig.port,
             password: redisConfig.password || undefined,
           });
         }
