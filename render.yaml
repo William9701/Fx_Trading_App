@@ -47,13 +47,12 @@ services:
         value: api/v1
 
       # ── JWT ───────────────────────────────────────────────────────────────
-      # Set these to strong random values in the Render Dashboard before deploy.
       - key: JWT_SECRET
-        sync: false
+        value: your-super-secret-jwt-key-change-in-production
       - key: JWT_EXPIRATION
         value: 1h
       - key: JWT_REFRESH_SECRET
-        sync: false
+        value: your-super-secret-refresh-key-change-in-production
       - key: JWT_REFRESH_EXPIRATION
         value: 7d
 
@@ -66,9 +65,9 @@ services:
       - key: SMTP_SECURE
         value: "false"
       - key: SMTP_USER
-        sync: false
+        value: williamobi818@gmail.com
       - key: SMTP_PASSWORD
-        sync: false
+        value: ggvgwrpnknudzupr
       - key: EMAIL_FROM
         value: "FX Trading <noreply@fxtrading.com>"
 
