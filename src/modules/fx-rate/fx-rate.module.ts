@@ -31,7 +31,9 @@ import { FxRateController } from './fx-rate.controller';
           store = await redisStore({
             host: parsed.hostname,
             port: parsed.port ? parseInt(parsed.port, 10) : 6379,
-            password: parsed.password || undefined,
+            password: parsed.password
+              ? decodeURIComponent(parsed.password)
+              : undefined,
             tls: parsed.protocol === 'rediss:' ? {} : undefined,
           });
         } else {
