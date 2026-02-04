@@ -9,11 +9,19 @@ import { EmailProcessor } from './email.processor';
     BullModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => {
+        // REDIS_URL is set by Render's fromService reference (redis://red-xxx:6379).
+        // ioredis accepts a connection URL directly — no need to parse host/port manually.
+        const redisUrl = process.env.REDIS_URL;
+
+        if (redisUrl) {
+          return { redis: { url: redisUrl } };
+        }
+
+        // Fallback for local Docker where REDIS_URL is not set.
         const redisConfig = configService.get<{
           host: string;
           port: number;
           password?: string;
-          tls?: object;
         }>('redis');
 
         return {
@@ -21,8 +29,6 @@ import { EmailProcessor } from './email.processor';
             host: redisConfig.host,
             port: redisConfig.port,
             password: redisConfig.password,
-            // Managed Redis (Render/Upstash) requires TLS; local Docker does not.
-            tls: redisConfig.tls !== undefined ? redisConfig.tls : undefined,
           },
         };
       },

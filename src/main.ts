@@ -58,6 +58,7 @@ async function bootstrap() {
 
   console.log(`🚀 FX Trading API running on port ${port}`);
   console.log(`📖 Swagger docs: http://localhost:${port}/docs`);
+  console.log(`🔧 ENV check — REDIS_URL: ${process.env.REDIS_URL ? 'SET' : 'NOT SET'} | DATABASE_URL: ${process.env.DATABASE_URL ? 'SET' : 'NOT SET'} | NODE_ENV: ${process.env.NODE_ENV}`);
 }
 
 bootstrap();
