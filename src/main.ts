@@ -54,7 +54,7 @@ async function bootstrap() {
     SwaggerModule.setup('docs', app, document);
   }
 
-  await app.listen(port);
+  await app.listen(port, '0.0.0.0');
 
   console.log(`🚀 FX Trading API running on port ${port}`);
   console.log(`📖 Swagger docs: http://localhost:${port}/docs`);

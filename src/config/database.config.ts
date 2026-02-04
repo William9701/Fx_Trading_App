@@ -13,10 +13,10 @@ export const getDatabaseConfig = (
   const baseConfig: TypeOrmModuleOptions = {
     type: 'postgres',
     entities: [__dirname + '/../**/*.entity{.ts,.js}'],
-    synchronize: isDevelopment,
+    // No migration files exist yet — synchronize handles schema on every start.
+    // Once migrations are added, set synchronize: false and migrationsRun: true.
+    synchronize: true,
     logging: isDevelopment,
-    migrations: [__dirname + '/../database/migrations/**/*{.ts,.js}'],
-    migrationsRun: !isDevelopment,
   };
 
   if (databaseUrl) {
